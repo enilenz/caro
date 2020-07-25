@@ -49,7 +49,7 @@ List<Category> get categories {
 const DUMMY_MEALS = const [
   Food(
     id: 'eba',
-    categories: 'cassava',
+    category: 'cassava',
     title: 'Spaghetti with Tomato Sauce',
   ),
 ];

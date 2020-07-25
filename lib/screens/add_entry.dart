@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 
 import 'package:page_transition/page_transition.dart';
 import 'package:provider/provider.dart';
 
 import 'package:caro/providers/foods.dart';
+
+import '../providers/foods.dart';
 
 class AddEntry extends StatefulWidget {
   static const routName = '/addEntry';
@@ -14,14 +17,32 @@ class AddEntry extends StatefulWidget {
 
 class _AddEntryState extends State<AddEntry> {
   bool isSearching = false;
+  Foods foodsProvider;
+  var _isInit = false;
+
+  // @override
+  // initState() {
+  //   super.initState();
+  // }
+
+  @override
+  didChangeDependencies() {
+    foodsProvider = Provider.of<Foods>(context);
+
+    if (!_isInit) {
+      SchedulerBinding.instance.addPostFrameCallback((_) {
+        foodsProvider.getRiceBased();
+      });
+    }
+    _isInit = true;
+    super.didChangeDependencies();
+  }
 
   static const categoriesUrl =
       'https://www.nigerianfoods.herokuapp.com/api/food_category/';
 
   @override
   Widget build(BuildContext context) {
-    final foodsProvider = Provider.of<Foods>(context).food;
-
     return Scaffold(
       appBar: AppBar(
         title: Text('Add Entry'),
@@ -31,7 +52,20 @@ class _AddEntryState extends State<AddEntry> {
           child: Icon(Icons.add, color: Colors.white),
         ),
       ),
-      body: Text('${foodsProvider[0].id}  ${foodsProvider[0].calories}'),
+      body: foodsProvider.isLoading
+          ? Center(
+              child: Column(
+                children: <Widget>[
+                  CircularProgressIndicator(),
+                  SizedBox(height: 10),
+                  Text("Loading")
+                ],
+              ),
+            )
+          : foodsProvider.food.length > 0
+              ? Text(
+                  '${foodsProvider.food[0].id}  ${foodsProvider.food[0].calories}')
+              : Text("No Item found"),
     );
   }
 }

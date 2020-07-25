@@ -17,35 +17,57 @@ class Foods with ChangeNotifier {
   static const categoriesUrl =
       'https://www.nigerianfoods.herokuapp.com/api/food_category/';
 
-  List<Food> _food = [];
+  bool _isLoading = false;
+  bool get isLoading => _isLoading;
+  set isLoading(val) {
+    _isLoading = val;
+    notifyListeners();
+  }
 
+  List<Food> _food = [];
   List<Food> get food {
     return [..._food];
   }
 
   Future<void> getRiceBased() async {
+    isLoading = true;
     try {
       final response = await http.get(
           'https://nigerianfoods.herokuapp.com/api/food_category/rice-based');
-      final extractedData = json.decode(response.body) as Map<String, dynamic>;
+      final extractedData = json.decode(response.body);
       final List<Food> loadedProducts = [];
 
-      extractedData.forEach((foodId, foodData) {
-        loadedProducts.add(Food(
-          id: foodId,
-          title: foodId,
-          category: foodData['coconut rice']['category'],
-          imageUrl: foodData['coconut rice']['img_url'],
-          calories: foodData['coconut rice']['nutritonal_information']
-              ['calories'],
-          carbs: foodData['coconut rice']['nutritonal_information']['carbs'],
-          protein: foodData['coconut rice']['nutritonal_information']
-              ['protein'],
-          fat: foodData['coconut rice']['nutritonal_information']['fat'],
-          sodium: foodData['coconut rice']['nutritonal_information']['sodium'],
-          sugar: foodData['coconut rice']['nutritonal_information']['sugar'],
-        ));
-      });
+      print(extractedData);
+
+      if (response.statusCode == 200) {
+        extractedData['rice-based'].forEach((food) {
+          print(food);
+          food.forEach((key, val) {
+            var foodId = key;
+            var foodData = val;
+
+            loadedProducts.add(Food(
+              id: foodId,
+              title: foodId,
+              category: foodData['category'],
+              imageUrl: foodData['img_url'],
+              calories:
+                  double.parse(foodData['nutritonal_information']['calories']),
+              carbs: double.parse(foodData['nutritonal_information']['carbs']),
+              protein:
+                  double.parse(foodData['nutritonal_information']['protein']),
+              fat: double.parse(foodData['nutritonal_information']['fat']),
+              sodium:
+                  double.parse(foodData['nutritonal_information']['sodium']),
+              sugar: double.parse(foodData['nutritonal_information']['sugar']),
+            ));
+          });
+        });
+      } else {
+        isLoading = false;
+      }
+
+      isLoading = false;
 
       _food = loadedProducts;
       notifyListeners();
@@ -53,5 +75,6 @@ class Foods with ChangeNotifier {
       print(e);
       throw (e);
     }
+    isLoading = false;
   }
 }
