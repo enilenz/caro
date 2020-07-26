@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'models/category.dart';
-import 'models/meal.dart';
+import 'providers/food.dart';
 
 const DUMMY_CATEGORIES = const [
   Category(
@@ -40,22 +40,16 @@ const DUMMY_CATEGORIES = const [
     id: 'yam',
     title: 'Yam-based',
   ),
-
 ];
 
-List<Category> get categories{
+List<Category> get categories {
   return [...DUMMY_CATEGORIES];
 }
 
 const DUMMY_MEALS = const [
-  Meal(
+  Food(
     id: 'eba',
-    categories: [
-
-    ],
+    categories: 'cassava',
     title: 'Spaghetti with Tomato Sauce',
-
   ),
-
-
 ];
